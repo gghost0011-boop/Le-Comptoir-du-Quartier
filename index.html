@@ -198,6 +198,18 @@
   .drawer-foot{padding:24px;border-top:1px solid var(--line)}
   .line{display:flex;justify-content:space-between;font-size:.92rem;color:var(--muted);margin-bottom:6px}
   .line.total{color:var(--ink);font-weight:700;font-size:1.15rem;margin:10px 0 16px}
+  .cust{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .cust input{padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--white);font-family:inherit;font-size:.9rem;min-width:0}
+  .cust input:focus{outline:none;border-color:var(--terra)}
+  .cust input.err{border-color:var(--terra);background:#fdeee9}
+  .cust .addr{grid-column:span 2;display:none}
+  .cust.deliv .addr{display:block}
+  body.at-table #c-phone{display:none}
+  body.at-table #c-name{grid-column:span 2}
+  .status-track{display:flex;justify-content:center;gap:6px;margin:22px 0 6px}
+  .status-track span{padding:7px 12px;border-radius:50px;font-size:.78rem;font-weight:700;background:var(--cream2);color:var(--muted);transition:.4s}
+  .status-track span.on{background:var(--green);color:#fff}
+  .order-num{font-family:'Fraunces';font-size:2.2rem;font-weight:900;color:var(--terra)}
   .ok{display:none;text-align:center;padding:50px 24px}
   .ok div{font-size:3.5rem}
   .ok h3{font-size:1.8rem;margin:10px 0}
@@ -414,6 +426,11 @@
     <div class="table-mode" id="table-mode"></div>
     <div class="items" id="items"></div>
     <div class="drawer-foot">
+      <div class="cust" id="cust">
+        <input id="c-name" placeholder="Ton prénom" autocomplete="given-name">
+        <input id="c-phone" type="tel" placeholder="Téléphone" autocomplete="tel">
+        <input id="c-addr" class="addr" placeholder="Adresse de livraison" autocomplete="street-address">
+      </div>
       <div class="line"><span>Sous-total</span><span id="sub">0,00 $</span></div>
       <div class="line deliv-line"><span>Livraison</span><span id="deliv">0,00 $</span></div>
       <div class="line"><span>Taxes (TPS + TVQ)</span><span id="tax">0,00 $</span></div>
@@ -421,7 +438,9 @@
       <button class="btn btn-terra" id="checkout" style="width:100%;justify-content:center">Passer la commande</button>
     </div>
   </div>
-  <div class="ok" id="ok"><div>🎉</div><h3>Commande reçue !</h3><p id="ok-text"></p><button class="btn btn-outline" id="ok-close" style="margin-top:20px">Fermer</button></div>
+  <div class="ok" id="ok"><div>🎉</div><h3>Commande reçue !</h3><div class="order-num" id="order-num"></div><p id="ok-text"></p>
+    <div class="status-track" id="status-track"><span data-s="nouvelle">Reçue</span><span data-s="preparation">En préparation</span><span data-s="prete">Prête</span></div>
+    <button class="btn btn-outline" id="ok-close" style="margin-top:20px">Fermer</button></div>
 </aside>
 
 <div class="toast" id="toast"></div>
@@ -562,21 +581,64 @@ $('#items').onclick = e => {
 $('#mode').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;
   document.querySelectorAll('#mode button').forEach(x => x.classList.remove('active'));
-  b.classList.add('active'); mode = b.dataset.mode; updateCart();
+  b.classList.add('active'); mode = b.dataset.mode;
+  $('#cust').classList.toggle('deliv', mode === 'livraison');
+  updateCart();
 };
 const openCart = () => { $('#drawer').classList.add('open'); $('#overlay').classList.add('show'); };
 const closeCart = () => { $('#drawer').classList.remove('open'); $('#overlay').classList.remove('show'); };
 $('#cart-btn').onclick = openCart;
 $('#close-cart').onclick = closeCart;
 $('#overlay').onclick = closeCart;
-$('#checkout').onclick = () => {
-  const table = new URLSearchParams(location.search).get('table');
-  $('#ok-text').textContent = table
-    ? `Ta commande part en cuisine pour la table ${table}. Bon appétit !`
-    : mode === 'livraison' ? 'Livraison estimée dans 25 à 35 minutes. (Démo : aucune commande réelle n\'est envoyée.)'
-    : 'Prête pour emporter dans environ 15 minutes. (Démo : aucune commande réelle n\'est envoyée.)';
-  $('#cart-view').style.display = 'none'; $('#ok').style.display = 'block';
-  cart = {}; updateCart();
+$('#checkout').onclick = async () => {
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+  if (!ids.length) return;
+  const tableNo = new URLSearchParams(location.search).get('table');
+  const name = $('#c-name').value.trim(), phone = $('#c-phone').value.trim(), addr = $('#c-addr').value.trim();
+
+  // Vérifie les champs obligatoires
+  const need = [];
+  if (!tableNo && !name) need.push('#c-name');
+  if (!tableNo && !phone) need.push('#c-phone');
+  if (mode === 'livraison' && !addr) need.push('#c-addr');
+  document.querySelectorAll('#cust input').forEach(i => i.classList.remove('err'));
+  if (need.length) { need.forEach(s => $(s).classList.add('err')); toast('Remplis les champs en rouge 🙂'); return; }
+
+  const items = ids.map(id => { const d = MENU.find(x => x.id == id); return {id: d.id, name: d.name, qty: cart[id], price: d.price}; });
+  const sub = items.reduce((s, i) => s + i.price * i.qty, 0);
+  const deliv = mode === 'livraison' && sub < INFO.freeDeliveryFrom ? INFO.deliveryFee : 0;
+  const order = {
+    num: Math.random().toString(36).slice(2, 6).toUpperCase(),
+    mode: tableNo ? 'table' : mode,
+    table: tableNo ? Number(tableNo) : null,
+    name: name.slice(0, 40), phone: phone.slice(0, 20), address: mode === 'livraison' ? addr.slice(0, 120) : '',
+    items, subtotal: +sub.toFixed(2), total: +((sub + deliv) * (1 + TAX)).toFixed(2),
+    status: 'nouvelle'
+  };
+
+  const btn = $('#checkout'); btn.disabled = true; btn.textContent = 'Envoi en cours…';
+  try {
+    if (!window.sendOrder) throw new Error('Firebase non chargé');
+    const id = await window.sendOrder(order);
+    $('#order-num').textContent = '#' + order.num;
+    $('#ok-text').textContent = tableNo
+      ? `Ta commande part en cuisine pour la table ${tableNo}. Bon appétit !`
+      : mode === 'livraison' ? 'Livraison estimée dans 25 à 35 minutes.' : 'Prête pour emporter dans environ 15 minutes.';
+    $('#cart-view').style.display = 'none'; $('#ok').style.display = 'block';
+    window.trackOrder && window.trackOrder(id, s => {
+      const steps = ['nouvelle','preparation','prete'];
+      const idx = steps.indexOf(s === 'terminee' ? 'prete' : s);
+      document.querySelectorAll('#status-track span').forEach((el, i) => el.classList.toggle('on', i <= idx));
+      if (s === 'prete') toast('✅ Ta commande est prête !');
+    });
+    cart = {}; updateCart();
+  } catch (err) {
+    console.error(err);
+    toast('Oups, la commande n\'a pas pu être envoyée. Réessaie.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = tableNo ? `Envoyer en cuisine (table ${tableNo})` : 'Passer la commande';
+  }
 };
 $('#ok-close').onclick = () => { $('#ok').style.display = 'none'; $('#cart-view').style.display = 'flex'; closeCart(); };
 
@@ -704,6 +766,32 @@ input.addEventListener('keydown', e => { if (e.key === 'Enter') send(input.value
 $('#quick').onclick = e => { const b = e.target.closest('button'); if (b) send(b.dataset.q); };
 
 renderMenu(); updateCart();
+</script>
+
+<!-- ================= FIREBASE : envoi des commandes ================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvBsLan_GXqEb58EDplCaVUuJlspthW-4",
+    authDomain: "le-comptoir-du-quartier.firebaseapp.com",
+    projectId: "le-comptoir-du-quartier",
+    storageBucket: "le-comptoir-du-quartier.firebasestorage.app",
+    messagingSenderId: "362121398498",
+    appId: "1:362121398498:web:48741a185242795cd1b6bb"
+  };
+
+  const db = getFirestore(initializeApp(firebaseConfig));
+
+  // Envoie la commande dans la collection "orders"
+  window.sendOrder = async order => {
+    const ref = await addDoc(collection(db, 'orders'), { ...order, createdAt: serverTimestamp() });
+    return ref.id;
+  };
+
+  // Suit le statut de la commande en direct (Reçue → En préparation → Prête)
+  window.trackOrder = (id, cb) => onSnapshot(doc(db, 'orders', id), snap => snap.exists() && cb(snap.data().status));
 </script>
 </body>
 </html>

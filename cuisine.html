@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Cuisine — Le Comptoir du Quartier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1d1714;--panel:#2a221d;--card:#352b25;--line:#4a3d34;
+    --cream:#fbf5ec;--muted:#b6a596;--terra:#e0694f;--green:#5fa872;--yellow:#e8b54a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--cream);min-height:100vh}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2{font-family:'Fraunces',serif}
+
+  /* CONNEXION */
+  .login{min-height:100vh;display:grid;place-items:center;padding:20px}
+  .login form{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:40px;width:min(400px,100%);display:grid;gap:14px}
+  .login h1{font-size:1.8rem}
+  .login p{color:var(--muted);font-size:.9rem;margin-top:-6px}
+  input{padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--cream);font-family:inherit;font-size:1rem}
+  input:focus{outline:none;border-color:var(--terra)}
+  .btn{padding:14px;border-radius:12px;border:none;background:var(--terra);color:#fff;font-weight:700;font-size:1rem}
+  .err{color:#ff9b85;font-size:.88rem;min-height:1.2em}
+
+  /* TABLEAU */
+  .app{display:none}
+  header{display:flex;align-items:center;gap:16px;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+  header h1{font-size:1.4rem}
+  .live{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+  .live i{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 1.6s infinite}
+  .live.off i{background:#c44;box-shadow:0 0 10px #c44}
+  @keyframes blink{50%{opacity:.3}}
+  .spacer{flex:1}
+  .clock{font-family:'Fraunces';font-size:1.4rem}
+  .hbtn{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--cream);font-size:.85rem}
+  .hbtn:hover{border-color:var(--terra)}
+
+  .board{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:20px 24px}
+  .col{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px;min-height:70vh}
+  .col h2{font-size:1.15rem;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .col h2 .n{font-family:'DM Sans';font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:50px;background:var(--card)}
+  .col[data-s="nouvelle"] h2{color:var(--terra)}
+  .col[data-s="preparation"] h2{color:var(--yellow)}
+  .col[data-s="prete"] h2{color:var(--green)}
+  .list{display:grid;gap:12px}
+  .empty{color:var(--muted);text-align:center;padding:40px 10px;font-size:.9rem}
+
+  .order{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--terra);border-radius:16px;padding:16px;animation:in .4s cubic-bezier(.3,1.4,.5,1)}
+  .order.new{animation:in .4s cubic-bezier(.3,1.4,.5,1),flash 1s 3}
+  .col[data-s="preparation"] .order{border-left-color:var(--yellow)}
+  .col[data-s="prete"] .order{border-left-color:var(--green)}
+  @keyframes in{from{opacity:0;transform:scale(.9)}}
+  @keyframes flash{50%{box-shadow:0 0 0 4px var(--terra)}}
+  .o-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+  .where{font-family:'Fraunces';font-size:1.5rem;font-weight:900;line-height:1.1}
+  .num{color:var(--muted);font-size:.8rem}
+  .age{font-weight:700;font-size:.85rem;padding:4px 10px;border-radius:50px;background:var(--bg);white-space:nowrap}
+  .age.late{background:#7a2b1f;color:#ffd4ca}
+  .who{font-size:.85rem;color:var(--muted);margin-bottom:10px}
+  .who a{color:var(--cream)}
+  .items{list-style:none;border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:4px}
+  .items li{display:flex;gap:10px;font-size:1.02rem}
+  .items b{color:var(--yellow);min-width:28px}
+  .o-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
+  .total{color:var(--muted);font-size:.9rem}
+  .next{padding:11px 16px;border-radius:12px;border:none;font-weight:700;font-size:.9rem;color:#1d1714}
+  .next.prep{background:var(--yellow)}
+  .next.ready{background:var(--green)}
+  .next.done{background:var(--cream)}
+  .undo{background:none;border:none;color:var(--muted);font-size:.8rem;text-decoration:underline}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,120px);background:var(--terra);color:#fff;padding:14px 24px;border-radius:50px;font-weight:700;transition:transform .4s cubic-bezier(.3,1.4,.5,1);z-index:20}
+  .toast.show{transform:translate(-50%,0)}
+
+  @media (max-width:900px){.board{grid-template-columns:1fr}.col{min-height:auto}}
+</style>
+</head>
+<body>
+
+<!-- CONNEXION -->
+<div class="login" id="login">
+  <form id="login-form">
+    <h1>🍳 Écran cuisine</h1>
+    <p>Le Comptoir du Quartier — réservé au personnel</p>
+    <input type="email" id="email" placeholder="Courriel" required autocomplete="username">
+    <input type="password" id="pass" placeholder="Mot de passe" required autocomplete="current-password">
+    <div class="err" id="err"></div>
+    <button class="btn" type="submit">Se connecter</button>
+  </form>
+</div>
+
+<!-- TABLEAU DES COMMANDES -->
+<div class="app" id="app">
+  <header>
+    <h1>🍳 Commandes du jour</h1>
+    <span class="live" id="live"><i></i><span>En direct</span></span>
+    <span class="spacer"></span>
+    <span class="clock" id="clock"></span>
+    <button class="hbtn" id="sound">🔔 Son activé</button>
+    <button class="hbtn" id="logout">Déconnexion</button>
+  </header>
+  <div class="board">
+    <section class="col" data-s="nouvelle"><h2>🔥 Nouvelles <span class="n" id="n-nouvelle">0</span></h2><div class="list" id="l-nouvelle"></div></section>
+    <section class="col" data-s="preparation"><h2>👨‍🍳 En préparation <span class="n" id="n-preparation">0</span></h2><div class="list" id="l-preparation"></div></section>
+    <section class="col" data-s="prete"><h2>✅ Prêtes <span class="n" id="n-prete">0</span></h2><div class="list" id="l-prete"></div></section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+  import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvBsLan_GXqEb58EDplCaVUuJlspthW-4",
+    authDomain: "le-comptoir-du-quartier.firebaseapp.com",
+    projectId: "le-comptoir-du-quartier",
+    storageBucket: "le-comptoir-du-quartier.firebasestorage.app",
+    messagingSenderId: "362121398498",
+    appId: "1:362121398498:web:48741a185242795cd1b6bb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const $ = s => document.querySelector(s);
+  const money = n => Number(n).toFixed(2).replace('.', ',') + ' $';
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /* ---------- Connexion ---------- */
+  $('#login-form').onsubmit = async e => {
+    e.preventDefault();
+    $('#err').textContent = '';
+    try {
+      await signInWithEmailAndPassword(auth, $('#email').value.trim(), $('#pass').value);
+    } catch (err) {
+      $('#err').textContent = 'Courriel ou mot de passe incorrect.';
+    }
+  };
+  $('#logout').onclick = () => signOut(auth);
+
+  let unsub = null;
+  onAuthStateChanged(auth, user => {
+    $('#login').style.display = user ? 'none' : 'grid';
+    $('#app').style.display = user ? 'block' : 'none';
+    if (unsub) { unsub(); unsub = null; }
+    if (user) listen();
+  });
+
+  /* ---------- Son (bip à chaque nouvelle commande) ---------- */
+  let soundOn = true, audio;
+  $('#sound').onclick = () => {
+    soundOn = !soundOn;
+    $('#sound').textContent = soundOn ? '🔔 Son activé' : '🔕 Son coupé';
+    if (soundOn) beep();
+  };
+  function beep(){
+    if (!soundOn) return;
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      [0, .22, .44].forEach((t, i) => {
+        const o = audio.createOscillator(), g = audio.createGain();
+        o.frequency.value = [880, 1100, 1320][i];
+        g.gain.setValueAtTime(.25, audio.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + t + .2);
+        o.connect(g).connect(audio.destination);
+        o.start(audio.currentTime + t); o.stop(audio.currentTime + t + .2);
+      });
+    } catch (e) {}
+  }
+
+  /* ---------- Commandes en direct ---------- */
+  let orders = [], first = true;
+  function listen(){
+    const start = new Date(); start.setHours(0, 0, 0, 0);
+    const q = query(collection(db, 'orders'), where('createdAt', '>=', Timestamp.fromDate(start)), orderBy('createdAt', 'asc'));
+    unsub = onSnapshot(q, snap => {
+      $('#live').classList.remove('off');
+      const added = [];
+      snap.docChanges().forEach(ch => { if (ch.type === 'added' && !first) added.push(ch.doc.id); });
+      orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render(added);
+      if (added.length) {
+        beep();
+        const o = orders.find(x => x.id === added[added.length - 1]);
+        toast(`🔥 Nouvelle commande : ${label(o)}`);
+      }
+      first = false;
+    }, err => {
+      console.error(err);
+      $('#live').classList.add('off');
+      $('#live span').textContent = 'Connexion perdue';
+    });
+  }
+
+  function label(o){
+    if (!o) return '';
+    if (o.mode === 'table') return `Table ${o.table}`;
+    return o.mode === 'livraison' ? `🛵 Livraison — ${o.name}` : `🥡 Emporter — ${o.name}`;
+  }
+
+  const NEXT = {
+    nouvelle: ['preparation', 'Commencer', 'prep'],
+    preparation: ['prete', 'Prête ✓', 'ready'],
+    prete: ['terminee', 'Remise / servie', 'done']
+  };
+  const PREV = { preparation: 'nouvelle', prete: 'preparation' };
+
+  function render(added = []){
+    ['nouvelle', 'preparation', 'prete'].forEach(s => {
+      const list = orders.filter(o => o.status === s);
+      $('#n-' + s).textContent = list.length;
+      $('#l-' + s).innerHTML = list.length ? list.map(o => card(o, added.includes(o.id))).join('') : '<div class="empty">Aucune commande</div>';
+    });
+    tick();
+  }
+
+  function card(o, isNew){
+    const [next, txt, cls] = NEXT[o.status];
+    const who = o.mode === 'table'
+      ? (o.name ? esc(o.name) : 'Sur place')
+      : `${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>${o.address ? '<br>📍 ' + esc(o.address) : ''}`;
+    return `<article class="order${isNew ? ' new' : ''}">
+      <div class="o-top">
+        <div><div class="where">${esc(label(o))}</div><div class="num">#${esc(o.num)}</div></div>
+        <span class="age" data-t="${o.createdAt ? o.createdAt.toMillis() : Date.now()}"></span>
+      </div>
+      <div class="who">${who}</div>
+      <ul class="items">${(o.items || []).map(i => `<li><b>${Number(i.qty)}×</b>${esc(i.name)}</li>`).join('')}</ul>
+      <div class="o-foot">
+        <span class="total">${money(o.total)}${PREV[o.status] ? ` · <button class="undo" data-id="${o.id}" data-to="${PREV[o.status]}">annuler</button>` : ''}</span>
+        <button class="next ${cls}" data-id="${o.id}" data-to="${next}">${txt}</button>
+      </div>
+    </article>`;
+  }
+
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-to]'); if (!b) return;
+    b.disabled = true;
+    try { await updateDoc(doc(db, 'orders', b.dataset.id), { status: b.dataset.to }); }
+    catch (err) { console.error(err); toast('Erreur : impossible de mettre à jour.'); b.disabled = false; }
+  });
+
+  /* ---------- Minuteurs et horloge ---------- */
+  function tick(){
+    document.querySelectorAll('.age').forEach(el => {
+      const min = Math.floor((Date.now() - Number(el.dataset.t)) / 60000);
+      el.textContent = min < 1 ? "À l'instant" : `${min} min`;
+      el.classList.toggle('late', min >= 15 && !el.closest('[data-s="prete"]'));
+    });
+    $('#clock').textContent = new Date().toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+  }
+  setInterval(tick, 20000); tick();
+
+  function toast(t){
+    const el = $('#toast'); el.textContent = t; el.classList.add('show');
+    clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3500);
+  }
+</script>
+</body>
+</html>
