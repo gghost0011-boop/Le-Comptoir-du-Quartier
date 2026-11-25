@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Comptoir du Quartier — Grill & cuisine maison, Montréal</title>
+<meta name="description" content="Grill et cuisine maison à Montréal. Menu en ligne, commande pour emporter et livraison.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#fbf5ec;
+    --cream2:#f3e9da;
+    --terra:#c8553d;
+    --terra-dark:#a63f2a;
+    --green:#3f6b4a;
+    --green-light:#e3ece1;
+    --ink:#2b211c;
+    --muted:#7a6a5f;
+    --line:#e6d9c6;
+    --white:#fffdf9;
+    --radius:22px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+  .container{width:min(1180px,92%);margin:auto}
+  h1,h2,h3{font-family:'Fraunces',serif;line-height:1.05}
+
+  /* BANDEAU TABLE (menu QR) */
+  .table-banner{display:none;background:var(--green);color:#fff;text-align:center;padding:10px;font-size:.9rem;font-weight:500}
+  .table-banner.show{display:block}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;background:rgba(251,245,236,.9);backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:.3s}
+  nav.scrolled{border-color:var(--line)}
+  nav .container{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
+  .logo{font-family:'Fraunces';font-weight:900;font-size:1.4rem;display:flex;align-items:center;gap:10px}
+  .logo-mark{width:38px;height:38px;border-radius:50%;background:var(--terra);color:var(--cream);display:grid;place-items:center;font-size:1.1rem}
+  .links{display:flex;gap:30px;font-weight:500;font-size:.95rem}
+  .links a{opacity:.75;transition:opacity .2s}
+  .links a:hover{opacity:1}
+  .nav-right{display:flex;gap:10px;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:50px;font-weight:700;font-size:.92rem;border:none;transition:transform .25s,box-shadow .25s,background .25s}
+  .btn-terra{background:var(--terra);color:#fff}
+  .btn-terra:hover{background:var(--terra-dark);transform:translateY(-2px);box-shadow:0 10px 24px rgba(200,85,61,.3)}
+  .btn-outline{background:transparent;border:2px solid var(--ink);color:var(--ink)}
+  .btn-outline:hover{background:var(--ink);color:var(--cream)}
+  .cart-btn{position:relative;width:48px;height:48px;border-radius:50%;background:var(--white);border:1px solid var(--line);font-size:1.2rem}
+  .cart-count{position:absolute;top:-4px;right:-4px;background:var(--terra);color:#fff;font-size:.7rem;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;transform:scale(0);transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+  .cart-count.show{transform:scale(1)}
+  .cart-btn.bump{animation:bump .4s}
+  @keyframes bump{50%{transform:scale(1.2)}}
+  .burger{display:none;background:none;border:none;font-size:1.6rem}
+
+  /* HERO */
+  .hero{padding:60px 0 90px;position:relative;overflow:hidden}
+  .hero .container{display:grid;grid-template-columns:1.05fr 1fr;gap:50px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--green-light);color:var(--green);padding:7px 16px;border-radius:50px;font-size:.85rem;font-weight:700;margin-bottom:22px}
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.6s infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .hero h1{font-size:clamp(2.8rem,6.5vw,5.2rem);font-weight:900;margin-bottom:22px}
+  .hero h1 em{font-style:italic;color:var(--terra);position:relative}
+  .hero h1 em svg{position:absolute;left:0;bottom:-8px;width:100%;height:14px}
+  .hero h1 em path{stroke-dasharray:300;stroke-dashoffset:300;animation:draw 1.2s .6s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .hero p{font-size:1.12rem;color:var(--muted);max-width:480px;margin-bottom:32px}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero-meta{display:flex;gap:28px;margin-top:40px;flex-wrap:wrap}
+  .hero-meta div{display:flex;align-items:center;gap:10px;font-size:.9rem}
+  .hero-meta b{display:block;font-size:1rem}
+  .hero-meta span{color:var(--muted);font-size:.82rem}
+  .hero-meta .ic{width:44px;height:44px;border-radius:14px;background:var(--white);border:1px solid var(--line);display:grid;place-items:center;font-size:1.2rem}
+
+  /* Assiette animée */
+  .plate-wrap{position:relative;aspect-ratio:1;max-width:520px;margin-left:auto;width:100%}
+  .blob{position:absolute;inset:6%;background:var(--terra);border-radius:42% 58% 63% 37%/45% 38% 62% 55%;animation:morph 10s ease-in-out infinite}
+  @keyframes morph{50%{border-radius:58% 42% 35% 65%/55% 60% 40% 45%}}
+  .plate{position:absolute;inset:16%;border-radius:50%;background:radial-gradient(circle,#fff 55%,#efe6d8 56%,#fff 64%,#e9dfcf 100%);box-shadow:0 30px 60px rgba(43,33,28,.25);display:grid;place-items:center;animation:float 5s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-12px) rotate(3deg)}}
+  .plate .food{font-size:clamp(5rem,13vw,9rem);filter:drop-shadow(0 10px 12px rgba(0,0,0,.2))}
+  .floater{position:absolute;background:var(--white);border-radius:18px;padding:12px 16px;box-shadow:0 14px 30px rgba(43,33,28,.12);display:flex;gap:10px;align-items:center;font-size:.85rem;animation:float 6s ease-in-out infinite}
+  .floater b{display:block}
+  .floater small{color:var(--muted)}
+  .f1{top:6%;left:-4%;animation-delay:.5s}
+  .f2{bottom:10%;right:-2%;animation-delay:1.5s}
+  .f3{bottom:2%;left:6%;animation-delay:2.5s}
+  .steam{position:absolute;top:12%;left:50%;display:flex;gap:14px;transform:translateX(-50%)}
+  .steam i{width:6px;height:40px;border-radius:6px;background:rgba(255,255,255,.7);filter:blur(3px);animation:steam 3s infinite}
+  .steam i:nth-child(2){animation-delay:.6s}.steam i:nth-child(3){animation-delay:1.2s}
+  @keyframes steam{0%{opacity:0;transform:translateY(20px) scaleY(.5)}50%{opacity:1}100%{opacity:0;transform:translateY(-30px) scaleY(1.2)}}
+
+  /* SECTIONS */
+  section{padding:100px 0}
+  .head{text-align:center;max-width:640px;margin:0 auto 50px}
+  .head small{color:var(--terra);font-weight:700;letter-spacing:.15em;text-transform:uppercase;font-size:.78rem}
+  .head h2{font-size:clamp(2.3rem,5vw,3.6rem);font-weight:900;margin:8px 0 12px}
+  .head p{color:var(--muted)}
+  .reveal{opacity:0;transform:translateY(35px);transition:opacity .8s,transform .8s}
+  .reveal.visible{opacity:1;transform:none}
+
+  /* MENU */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:16px}
+  .chip{padding:10px 20px;border-radius:50px;border:1.5px solid var(--line);background:var(--white);font-weight:500;font-size:.9rem;transition:.25s}
+  .chip:hover{border-color:var(--ink)}
+  .chip.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .diet-filters .chip.active{background:var(--green);border-color:var(--green)}
+  .search{display:block;margin:0 auto 40px;width:min(420px,100%);padding:14px 20px;border-radius:50px;border:1.5px solid var(--line);background:var(--white);font-family:inherit;font-size:.95rem}
+  .search:focus{outline:none;border-color:var(--terra)}
+  .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+  .dish{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s,opacity .3s}
+  .dish:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(43,33,28,.1)}
+  .dish.hide{display:none}
+  .dish-img{height:170px;display:grid;place-items:center;font-size:4.6rem;position:relative;overflow:hidden}
+  .dish-img span{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
+  .dish:hover .dish-img span{transform:scale(1.18) rotate(-6deg)}
+  .badge-pop{position:absolute;top:12px;left:12px;background:var(--terra);color:#fff;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:50px}
+  .dish-body{padding:20px;display:flex;flex-direction:column;flex:1}
+  .dish-body h3{font-size:1.3rem;font-weight:700;margin-bottom:6px}
+  .dish-body p{color:var(--muted);font-size:.88rem;flex:1}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+  .tag{font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:50px;background:var(--cream2)}
+  .tag.v{background:var(--green-light);color:var(--green)}
+  .tag.s{background:#fbe2da;color:var(--terra-dark)}
+  .tag.g{background:#f4ecd0;color:#8a6a12}
+  .dish-foot{display:flex;justify-content:space-between;align-items:center}
+  .dish-foot b{font-family:'Fraunces';font-size:1.4rem}
+  .add{width:42px;height:42px;border-radius:50%;border:none;background:var(--ink);color:var(--cream);font-size:1.3rem;transition:.25s}
+  .add:hover{background:var(--terra);transform:rotate(90deg)}
+  .empty{display:none;text-align:center;color:var(--muted);padding:30px}
+
+  /* POURQUOI */
+  .why{background:var(--green);color:var(--cream);border-radius:36px;margin:0 4%;padding:90px 0}
+  .why .head small{color:#f2c9a0}
+  .why .head p{color:rgba(251,245,236,.75)}
+  .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px}
+  .why-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);padding:30px}
+  .why-card .ic{font-size:2.2rem;margin-bottom:14px}
+  .why-card h3{font-size:1.35rem;margin-bottom:8px}
+  .why-card p{color:rgba(251,245,236,.75);font-size:.92rem}
+
+  /* QR + AVIS */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:28px;padding:40px}
+  .qr-box{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+  .qr-box img{width:150px;height:150px;border-radius:16px;border:1px solid var(--line);padding:10px;background:#fff}
+  .card h3{font-size:1.8rem;font-weight:900;margin-bottom:10px}
+  .card p{color:var(--muted);margin-bottom:16px}
+  .table-pick{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .table-pick select{padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);font-family:inherit;background:var(--cream)}
+  .review{border-left:3px solid var(--terra);padding-left:18px;margin-bottom:22px}
+  .review .stars{color:var(--terra);letter-spacing:2px}
+  .review p{margin:6px 0 4px;color:var(--ink);font-size:.95rem}
+  .review small{color:var(--muted)}
+
+  /* INFOS */
+  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+  .info{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:30px}
+  .info .ic{font-size:1.8rem;margin-bottom:10px}
+  .info h3{font-size:1.3rem;margin-bottom:10px}
+  .hours{display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-size:.92rem;color:var(--muted)}
+  .hours .today{color:var(--terra);font-weight:700}
+
+  footer{padding:40px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}
+  footer .container{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+
+  /* PANIER */
+  .overlay{position:fixed;inset:0;background:rgba(43,33,28,.4);z-index:80;opacity:0;pointer-events:none;transition:.3s}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(410px,100%);background:var(--cream);z-index:90;transform:translateX(100%);transition:transform .4s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+  .drawer.open{transform:none}
+  .drawer-head{padding:24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+  .drawer-head h3{font-size:1.6rem}
+  .x{background:none;border:none;font-size:1.4rem}
+  .mode{display:flex;margin:18px 24px 0;background:var(--cream2);border-radius:50px;padding:4px}
+  .mode button{flex:1;padding:10px;border:none;background:none;border-radius:50px;font-weight:700;font-size:.88rem}
+  .mode button.active{background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+  .items{flex:1;overflow-y:auto;padding:20px 24px}
+  .item{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px dashed var(--line)}
+  .item .em{font-size:2rem;width:52px;height:52px;border-radius:14px;background:var(--white);display:grid;place-items:center}
+  .item .nm{flex:1}
+  .item .nm b{display:block;font-size:.95rem}
+  .item .nm small{color:var(--muted)}
+  .qty{display:flex;align-items:center;gap:10px;background:var(--white);border-radius:50px;padding:4px}
+  .qty button{width:28px;height:28px;border-radius:50%;border:none;background:var(--cream2);font-weight:700}
+  .empty-cart{text-align:center;color:var(--muted);padding:60px 0}
+  .empty-cart div{font-size:3rem;margin-bottom:8px}
+  .drawer-foot{padding:24px;border-top:1px solid var(--line)}
+  .line{display:flex;justify-content:space-between;font-size:.92rem;color:var(--muted);margin-bottom:6px}
+  .line.total{color:var(--ink);font-weight:700;font-size:1.15rem;margin:10px 0 16px}
+  .ok{display:none;text-align:center;padding:50px 24px}
+  .ok div{font-size:3.5rem}
+  .ok h3{font-size:1.8rem;margin:10px 0}
+  .ok p{color:var(--muted)}
+
+  /* TOAST */
+  .toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,120px);background:var(--ink);color:var(--cream);padding:12px 22px;border-radius:50px;font-size:.9rem;z-index:100;transition:transform .4s cubic-bezier(.3,1.4,.5,1)}
+  .toast.show{transform:translate(-50%,0)}
+
+  /* CHATBOT */
+  .chat-toggle{position:fixed;right:22px;bottom:22px;z-index:70;height:58px;padding:0 22px 0 18px;border-radius:50px;border:none;background:var(--terra);color:#fff;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 12px 30px rgba(200,85,61,.4);transition:transform .3s}
+  .chat-toggle:hover{transform:translateY(-3px)}
+  .chat-toggle .em{font-size:1.4rem;animation:wave 2.5s infinite;transform-origin:70% 70%}
+  @keyframes wave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%,40%{transform:rotate(-8deg)}}
+  .chat{position:fixed;right:22px;bottom:94px;z-index:70;width:min(380px,calc(100% - 44px));height:520px;background:var(--white);border:1px solid var(--line);border-radius:26px;box-shadow:0 30px 60px rgba(43,33,28,.2);display:flex;flex-direction:column;overflow:hidden;opacity:0;transform:translateY(20px) scale(.96);pointer-events:none;transition:.35s cubic-bezier(.2,.8,.2,1)}
+  .chat.open{opacity:1;transform:none;pointer-events:auto}
+  .chat-head{background:var(--green);color:var(--cream);padding:18px 20px;display:flex;align-items:center;gap:12px}
+  .avatar{width:42px;height:42px;border-radius:50%;background:var(--cream);display:grid;place-items:center;font-size:1.3rem}
+  .chat-head b{display:block}
+  .chat-head small{opacity:.8;font-size:.78rem}
+  .chat-head .x{margin-left:auto;color:var(--cream)}
+  .msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px;background:var(--cream)}
+  .msg{max-width:86%;padding:11px 15px;border-radius:18px;font-size:.9rem;animation:pop .3s}
+  @keyframes pop{from{opacity:0;transform:translateY(8px)}}
+  .msg.bot{background:var(--white);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:5px}
+  .msg.user{background:var(--terra);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+  .msg .mini-add{margin-top:8px;display:inline-block;padding:6px 12px;border-radius:50px;border:none;background:var(--ink);color:var(--cream);font-size:.78rem;font-weight:700}
+  .typing{display:flex;gap:4px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bnc 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes bnc{50%{transform:translateY(-5px)}}
+  .quick{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;background:var(--cream);border-top:1px solid var(--line)}
+  .quick button{white-space:nowrap;padding:7px 13px;border-radius:50px;border:1.5px solid var(--line);background:var(--white);font-size:.8rem;font-weight:500}
+  .quick button:hover{border-color:var(--terra);color:var(--terra)}
+  .chat-input{display:flex;gap:8px;padding:12px}
+  .chat-input input{flex:1;padding:12px 16px;border-radius:50px;border:1.5px solid var(--line);font-family:inherit;background:var(--cream)}
+  .chat-input input:focus{outline:none;border-color:var(--terra)}
+  .chat-input button{width:46px;border-radius:50%;border:none;background:var(--terra);color:#fff;font-size:1rem}
+
+  @media (max-width:900px){
+    .hero .container,.split{grid-template-columns:1fr}
+    .plate-wrap{margin:auto;max-width:420px}
+    .links{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;background:var(--cream);border-bottom:1px solid var(--line)}
+    .links.open{display:flex}
+    .links a{padding:16px 4%;border-top:1px solid var(--line)}
+    .burger{display:block}
+    .nav-right .btn{display:none}
+    .why{margin:0;border-radius:0}
+    .chat-toggle .label{display:none}
+    .chat-toggle{padding:0;width:58px;justify-content:center}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+    .hero h1 em path{stroke-dashoffset:0}
+  }
+</style>
+</head>
+<body>
+
+<div class="table-banner" id="table-banner"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="container">
+    <a href="#" class="logo"><span class="logo-mark">🔥</span>Le Comptoir du Quartier</a>
+    <div class="links" id="links">
+      <a href="#menu">Menu</a>
+      <a href="#pourquoi">Notre cuisine</a>
+      <a href="#qr">Menu QR</a>
+      <a href="#infos">Infos</a>
+    </div>
+    <div class="nav-right">
+      <a href="#menu" class="btn btn-terra">Commander</a>
+      <button class="cart-btn" id="cart-btn" aria-label="Panier">🛍️<span class="cart-count" id="cart-count">0</span></button>
+      <button class="burger" id="burger" aria-label="Menu">☰</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div>
+      <div class="pill"><span class="dot"></span><span id="open-status">Ouvert aujourd'hui</span></div>
+      <h1>Le goût de la <em>maison<svg viewBox="0 0 200 14" preserveAspectRatio="none"><path d="M2 10 Q 50 2 100 8 T 198 6" fill="none" stroke="#c8553d" stroke-width="4" stroke-linecap="round"/></svg></em>, au coin de ta rue.</h1>
+      <p>Grillades, plats mijotés et recettes de famille, faits frais chaque jour. Sur place, pour emporter ou livré chez toi.</p>
+      <div class="hero-cta">
+        <a href="#menu" class="btn btn-terra">Voir le menu →</a>
+        <a href="tel:5145550199" class="btn btn-outline">📞 Appeler</a>
+      </div>
+      <div class="hero-meta">
+        <div><span class="ic">🛵</span><div><b>25–35 min</b><span>Livraison</span></div></div>
+        <div><span class="ic">🥡</span><div><b>15 min</b><span>Pour emporter</span></div></div>
+        <div><span class="ic">⭐</span><div><b>4,8 / 5</b><span>Avis (démo)</span></div></div>
+      </div>
+    </div>
+    <div class="plate-wrap">
+      <div class="blob"></div>
+      <div class="plate"><span class="food" id="hero-food">🍗</span></div>
+      <div class="steam"><i></i><i></i><i></i></div>
+      <div class="floater f1"><span style="font-size:1.6rem">🌿</span><div><b>Frais du jour</b><small>Produits du Québec</small></div></div>
+      <div class="floater f2"><span style="font-size:1.6rem">🔥</span><div><b>Plat vedette</b><small id="hero-name">Poulet grillé</small></div></div>
+      <div class="floater f3"><span style="font-size:1.6rem">🥗</span><div><b>Options végé</b><small>Et sans gluten</small></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- MENU -->
+<section id="menu" style="background:var(--white)">
+  <div class="container">
+    <div class="head reveal">
+      <small>Notre menu</small>
+      <h2>Choisis, on cuisine.</h2>
+      <p>Filtre selon tes envies ou ce que tu évites. Ajoute au panier et commande en deux clics.</p>
+    </div>
+    <div class="filters reveal" id="cat-filters">
+      <button class="chip active" data-cat="all">Tout</button>
+      <button class="chip" data-cat="grill">Grillades</button>
+      <button class="chip" data-cat="maison">Plats maison</button>
+      <button class="chip" data-cat="burger">Burgers</button>
+      <button class="chip" data-cat="side">Accompagnements</button>
+      <button class="chip" data-cat="dessert">Desserts & boissons</button>
+    </div>
+    <div class="filters diet-filters reveal" id="diet-filters">
+      <button class="chip" data-diet="v">🌱 Végé</button>
+      <button class="chip" data-diet="s">🌶️ Épicé</button>
+      <button class="chip" data-diet="g">🌾 Sans gluten</button>
+    </div>
+    <input class="search reveal" id="search" placeholder="🔍  Chercher un plat…">
+    <div class="menu-grid" id="menu-grid"></div>
+    <div class="empty" id="empty">Aucun plat ne correspond. Essaie d'enlever un filtre 🙂</div>
+  </div>
+</section>
+
+<!-- POURQUOI -->
+<section id="pourquoi" class="why">
+  <div class="container">
+    <div class="head reveal">
+      <small>Notre cuisine</small>
+      <h2>Simple. Généreux. Fait ici.</h2>
+      <p>Une cuisine de quartier qui te connaît par ton prénom.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal"><div class="ic">🧑‍🍳</div><h3>Recettes de famille</h3><p>Des plats mijotés comme à la maison, transmis de génération en génération.</p></div>
+      <div class="why-card reveal"><div class="ic">🌽</div><h3>Produits locaux</h3><p>Viandes et légumes de fournisseurs du Québec, livrés frais chaque matin.</p></div>
+      <div class="why-card reveal"><div class="ic">🔥</div><h3>Cuit sur le grill</h3><p>Nos grillades sont cuites à la flamme, à la commande. Jamais réchauffées.</p></div>
+      <div class="why-card reveal"><div class="ic">💚</div><h3>Pour tout le monde</h3><p>Options végé, sans gluten et menu enfant. Allergènes indiqués sur chaque plat.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- QR + AVIS -->
+<section id="qr">
+  <div class="container split">
+    <div class="card reveal">
+      <h3>📱 Menu QR à table</h3>
+      <p>Les clients scannent le code sur leur table, voient le menu et commandent depuis leur téléphone. Moins d'attente, plus de commandes.</p>
+      <div class="qr-box">
+        <img id="qr-img" alt="Code QR du menu">
+        <div>
+          <p style="margin-bottom:10px;font-size:.9rem">Choisis une table pour générer son code :</p>
+          <div class="table-pick">
+            <select id="table-select"></select>
+            <a class="btn btn-outline" id="qr-test" target="_blank" style="padding:9px 16px">Tester</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card reveal">
+      <h3>Ce qu'ils en disent</h3>
+      <div class="review"><div class="stars">★★★★★</div><p>« Exemple d'avis : le poulet grillé est incroyable, et la livraison arrive toujours chaude. »</p><small>Client démo · Google</small></div>
+      <div class="review"><div class="stars">★★★★★</div><p>« Exemple d'avis : enfin un resto de quartier avec de vraies options végé. »</p><small>Client démo · Google</small></div>
+      <div class="review" style="margin-bottom:0"><div class="stars">★★★★☆</div><p>« Exemple d'avis : portions généreuses, prix honnêtes. On y retourne chaque semaine. »</p><small>Client démo · Google</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- INFOS -->
+<section id="infos" style="padding-top:0">
+  <div class="container">
+    <div class="head reveal"><small>Nous trouver</small><h2>Passe nous voir.</h2></div>
+    <div class="info-grid">
+      <div class="info reveal"><div class="ic">📍</div><h3>Adresse</h3><p style="color:var(--muted)">4567, rue Ontario Est<br>Montréal (QC)<br>Métro à 4 minutes à pied</p></div>
+      <div class="info reveal"><div class="ic">🕒</div><h3>Horaires</h3>
+        <div class="hours" id="hours">
+          <span data-d="1">Lundi – Mardi</span><span data-d="1">11 h – 21 h</span>
+          <span data-d="3">Mercredi – Jeudi</span><span data-d="3">11 h – 22 h</span>
+          <span data-d="5">Vendredi – Samedi</span><span data-d="5">11 h – 23 h</span>
+          <span data-d="0">Dimanche</span><span data-d="0">12 h – 21 h</span>
+        </div>
+      </div>
+      <div class="info reveal"><div class="ic">📞</div><h3>Contact</h3><p style="color:var(--muted)">(514) 555-0199<br>bonjour@comptoirduquartier.ca<br>Groupes et traiteur sur demande</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span>© <span id="year"></span> Le Comptoir du Quartier — Site de démonstration</span>
+    <span>Instagram · Facebook · Google</span>
+  </div>
+</footer>
+
+<!-- PANIER -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head"><h3>Ta commande</h3><button class="x" id="close-cart" aria-label="Fermer">✕</button></div>
+  <div id="cart-view" style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <div class="mode" id="mode">
+      <button class="active" data-mode="emporter">🥡 Pour emporter</button>
+      <button data-mode="livraison">🛵 Livraison</button>
+    </div>
+    <div class="items" id="items"></div>
+    <div class="drawer-foot">
+      <div class="line"><span>Sous-total</span><span id="sub">0,00 $</span></div>
+      <div class="line"><span>Livraison</span><span id="deliv">0,00 $</span></div>
+      <div class="line"><span>Taxes (TPS + TVQ)</span><span id="tax">0,00 $</span></div>
+      <div class="line total"><span>Total</span><span id="total">0,00 $</span></div>
+      <button class="btn btn-terra" id="checkout" style="width:100%;justify-content:center">Passer la commande</button>
+    </div>
+  </div>
+  <div class="ok" id="ok"><div>🎉</div><h3>Commande reçue !</h3><p id="ok-text"></p><button class="btn btn-outline" id="ok-close" style="margin-top:20px">Fermer</button></div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<!-- CHATBOT -->
+<button class="chat-toggle" id="chat-toggle"><span class="em">👋</span><span class="label">Une question ?</span></button>
+<div class="chat" id="chat">
+  <div class="chat-head">
+    <div class="avatar">🍽️</div>
+    <div><b>Assistant du Comptoir</b><small>Répond en quelques secondes</small></div>
+    <button class="x" id="chat-close" aria-label="Fermer">✕</button>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="quick" id="quick">
+    <button data-q="Qu'est-ce que vous recommandez ?">⭐ Suggestion</button>
+    <button data-q="Options végé ?">🌱 Végé</button>
+    <button data-q="Sans gluten ?">🌾 Sans gluten</button>
+    <button data-q="Allergènes arachides ?">⚠️ Allergènes</button>
+    <button data-q="Vous livrez ?">🛵 Livraison</button>
+    <button data-q="Horaires ?">🕒 Horaires</button>
+  </div>
+  <div class="chat-input">
+    <input id="chat-text" placeholder="Ex. : c'est quoi le plat le plus épicé ?">
+    <button id="chat-send" aria-label="Envoyer">➤</button>
+  </div>
+</div>
+
+<script>
+/* ================= DONNÉES DU MENU =================
+   Pour adapter à un autre resto : change seulement ce tableau.
+   tags : v = végé, s = épicé, g = sans gluten
+   allergens : liste des allergènes principaux                   */
+const MENU = [
+  {id:1, cat:'grill', name:'Poulet grillé maison', desc:'Demi-poulet mariné 24 h, grillé à la flamme, sauce à l\'ail.', price:18.95, em:'🍗', bg:'#fbe2da', tags:['g'], allergens:['ail'], pop:true},
+  {id:2, cat:'grill', name:'Brochettes de bœuf', desc:'Bœuf du Québec, poivrons et oignons, marinade aux épices.', price:21.50, em:'🍢', bg:'#f4ecd0', tags:['s','g'], allergens:[]},
+  {id:3, cat:'grill', name:'Côtes levées BBQ', desc:'Cuites lentement 6 h, sauce BBQ fumée maison.', price:24.95, em:'🍖', bg:'#f3d9c9', tags:[], allergens:['moutarde','gluten']},
+  {id:4, cat:'maison', name:'Ragoût de la grand-mère', desc:'Bœuf mijoté, légumes racines, purée maison.', price:17.50, em:'🍲', bg:'#efe2cf', tags:[], allergens:['lait','céleri']},
+  {id:5, cat:'maison', name:'Curry de pois chiches', desc:'Lait de coco, épinards, riz basmati.', price:15.95, em:'🍛', bg:'#f7e6c4', tags:['v','s','g'], allergens:[], pop:true},
+  {id:6, cat:'maison', name:'Pâtes crémeuses aux champignons', desc:'Champignons sautés, parmesan, persil frais.', price:16.50, em:'🍝', bg:'#f1ead9', tags:['v'], allergens:['gluten','lait']},
+  {id:7, cat:'burger', name:'Le Classique', desc:'Bœuf, cheddar, laitue, tomate, sauce maison.', price:15.95, em:'🍔', bg:'#f6dfc7', tags:[], allergens:['gluten','lait','œuf','sésame']},
+  {id:8, cat:'burger', name:'Le Piquant', desc:'Poulet croustillant, jalapeños, mayo sriracha.', price:16.95, em:'🌶️', bg:'#fbd5c8', tags:['s'], allergens:['gluten','œuf']},
+  {id:9, cat:'burger', name:'Le Jardin', desc:'Galette de légumes et haricots noirs, avocat.', price:15.50, em:'🥬', bg:'#e3ece1', tags:['v'], allergens:['gluten','soya']},
+  {id:10, cat:'side', name:'Frites maison', desc:'Coupées à la main, sel de mer.', price:5.50, em:'🍟', bg:'#f7ebc6', tags:['v','g'], allergens:[]},
+  {id:11, cat:'side', name:'Salade du marché', desc:'Légumes de saison, vinaigrette à l\'érable.', price:7.95, em:'🥗', bg:'#e3ece1', tags:['v','g'], allergens:['moutarde']},
+  {id:12, cat:'side', name:'Riz épicé', desc:'Riz sauté aux épices et légumes.', price:5.95, em:'🍚', bg:'#f4ecd0', tags:['v','s','g'], allergens:[]},
+  {id:13, cat:'dessert', name:'Pouding chômeur', desc:'Le classique québécois, sirop d\'érable.', price:7.50, em:'🍮', bg:'#f3e0c5', tags:['v'], allergens:['gluten','lait','œuf']},
+  {id:14, cat:'dessert', name:'Brownie aux noix', desc:'Chocolat noir, noix de Grenoble.', price:6.50, em:'🍫', bg:'#ead8c8', tags:['v'], allergens:['noix','gluten','lait','œuf']},
+  {id:15, cat:'dessert', name:'Limonade maison', desc:'Citron frais, menthe, un peu de miel.', price:4.50, em:'🍋', bg:'#f7f0c4', tags:['v','g'], allergens:[]},
+];
+const INFO = {
+  phone:'(514) 555-0199',
+  address:'4567, rue Ontario Est, Montréal',
+  deliveryFee:4.99, freeDeliveryFrom:40,
+  hours:{0:[12,21],1:[11,21],2:[11,21],3:[11,22],4:[11,22],5:[11,23],6:[11,23]}
+};
+const TAX = 0.14975; // TPS 5 % + TVQ 9,975 %
+
+const $ = s => document.querySelector(s);
+const money = n => n.toFixed(2).replace('.', ',') + ' $';
+const TAGS = {v:['🌱 Végé','v'], s:['🌶️ Épicé','s'], g:['🌾 Sans gluten','g']};
+
+/* ================= MENU ================= */
+let cat = 'all', diets = new Set(), query = '';
+function renderMenu(){
+  $('#menu-grid').innerHTML = MENU.map(d => `
+    <article class="dish" data-id="${d.id}">
+      <div class="dish-img" style="background:${d.bg}">${d.pop ? '<span class="badge-pop">Populaire</span>' : ''}<span>${d.em}</span></div>
+      <div class="dish-body">
+        <h3>${d.name}</h3>
+        <p>${d.desc}</p>
+        <div class="tags">${d.tags.map(t => `<span class="tag ${TAGS[t][1]}">${TAGS[t][0]}</span>`).join('')}
+          ${d.allergens.length ? `<span class="tag" title="Allergènes">⚠️ ${d.allergens.join(', ')}</span>` : ''}</div>
+        <div class="dish-foot"><b>${money(d.price)}</b><button class="add" data-add="${d.id}" aria-label="Ajouter ${d.name}">+</button></div>
+      </div>
+    </article>`).join('');
+  filterMenu();
+}
+function filterMenu(){
+  let shown = 0;
+  MENU.forEach(d => {
+    const ok = (cat === 'all' || d.cat === cat)
+      && [...diets].every(t => d.tags.includes(t))
+      && (d.name + ' ' + d.desc).toLowerCase().includes(query);
+    document.querySelector(`.dish[data-id="${d.id}"]`).classList.toggle('hide', !ok);
+    if (ok) shown++;
+  });
+  $('#empty').style.display = shown ? 'none' : 'block';
+}
+$('#cat-filters').onclick = e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  document.querySelectorAll('#cat-filters .chip').forEach(c => c.classList.remove('active'));
+  b.classList.add('active'); cat = b.dataset.cat; filterMenu();
+};
+$('#diet-filters').onclick = e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  b.classList.toggle('active');
+  diets.has(b.dataset.diet) ? diets.delete(b.dataset.diet) : diets.add(b.dataset.diet);
+  filterMenu();
+};
+$('#search').oninput = e => { query = e.target.value.toLowerCase().trim(); filterMenu(); };
+document.addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (b) addToCart(+b.dataset.add); });
+
+/* ================= PANIER ================= */
+let cart = {}, mode = 'emporter';
+function addToCart(id){
+  cart[id] = (cart[id] || 0) + 1;
+  updateCart();
+  const d = MENU.find(x => x.id === id);
+  toast(`${d.em} ${d.name} ajouté`);
+  $('#cart-btn').classList.remove('bump'); void $('#cart-btn').offsetWidth; $('#cart-btn').classList.add('bump');
+}
+function updateCart(){
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+  const count = ids.reduce((s, id) => s + cart[id], 0);
+  $('#cart-count').textContent = count;
+  $('#cart-count').classList.toggle('show', count > 0);
+  $('#items').innerHTML = ids.length ? ids.map(id => {
+    const d = MENU.find(x => x.id == id);
+    return `<div class="item"><div class="em">${d.em}</div><div class="nm"><b>${d.name}</b><small>${money(d.price * cart[id])}</small></div>
+      <div class="qty"><button data-q="-" data-id="${id}">−</button><b>${cart[id]}</b><button data-q="+" data-id="${id}">+</button></div></div>`;
+  }).join('') : '<div class="empty-cart"><div>🛍️</div>Ton panier est vide.<br>Ajoute un plat du menu !</div>';
+  const sub = ids.reduce((s, id) => s + MENU.find(x => x.id == id).price * cart[id], 0);
+  const deliv = mode === 'livraison' && sub > 0 && sub < INFO.freeDeliveryFrom ? INFO.deliveryFee : 0;
+  const tax = (sub + deliv) * TAX;
+  $('#sub').textContent = money(sub);
+  $('#deliv').textContent = mode === 'livraison' ? (deliv ? money(deliv) : 'Gratuite') : '—';
+  $('#tax').textContent = money(tax);
+  $('#total').textContent = money(sub + deliv + tax);
+  $('#checkout').disabled = !ids.length;
+  $('#checkout').style.opacity = ids.length ? 1 : .5;
+}
+$('#items').onclick = e => {
+  const b = e.target.closest('[data-q]'); if (!b) return;
+  cart[b.dataset.id] += b.dataset.q === '+' ? 1 : -1;
+  if (cart[b.dataset.id] <= 0) delete cart[b.dataset.id];
+  updateCart();
+};
+$('#mode').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#mode button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); mode = b.dataset.mode; updateCart();
+};
+const openCart = () => { $('#drawer').classList.add('open'); $('#overlay').classList.add('show'); };
+const closeCart = () => { $('#drawer').classList.remove('open'); $('#overlay').classList.remove('show'); };
+$('#cart-btn').onclick = openCart;
+$('#close-cart').onclick = closeCart;
+$('#overlay').onclick = closeCart;
+$('#checkout').onclick = () => {
+  const table = new URLSearchParams(location.search).get('table');
+  $('#ok-text').textContent = table
+    ? `Ta commande part en cuisine pour la table ${table}. Bon appétit !`
+    : mode === 'livraison' ? 'Livraison estimée dans 25 à 35 minutes. (Démo : aucune commande réelle n\'est envoyée.)'
+    : 'Prête pour emporter dans environ 15 minutes. (Démo : aucune commande réelle n\'est envoyée.)';
+  $('#cart-view').style.display = 'none'; $('#ok').style.display = 'block';
+  cart = {}; updateCart();
+};
+$('#ok-close').onclick = () => { $('#ok').style.display = 'none'; $('#cart-view').style.display = 'flex'; closeCart(); };
+
+function toast(t){
+  const el = $('#toast'); el.textContent = t; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+/* ================= QR ET MODE TABLE ================= */
+const base = location.href.split('?')[0].split('#')[0];
+$('#table-select').innerHTML = Array.from({length:12}, (_, i) => `<option value="${i+1}">Table ${i+1}</option>`).join('');
+function updateQR(){
+  const url = `${base}?table=${$('#table-select').value}#menu`;
+  $('#qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=' + encodeURIComponent(url);
+  $('#qr-test').href = url;
+}
+$('#table-select').onchange = updateQR; updateQR();
+const table = new URLSearchParams(location.search).get('table');
+if (table) {
+  $('#table-banner').textContent = `🍽️ Table ${table} — commande directement depuis ton téléphone, on t'apporte tout !`;
+  $('#table-banner').classList.add('show');
+}
+
+/* ================= HORAIRES ================= */
+const now = new Date(), day = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+const hr = INFO.hours[day];
+$('#open-status').textContent = h >= hr[0] && h < hr[1] ? `Ouvert maintenant · jusqu'à ${hr[1]} h` : `Fermé · ouvre à ${hr[0]} h`;
+const grp = {0:'0',1:'1',2:'1',3:'3',4:'3',5:'5',6:'5'}[day];
+document.querySelectorAll(`#hours [data-d="${grp}"]`).forEach(el => el.classList.add('today'));
+$('#year').textContent = now.getFullYear();
+
+/* ================= HERO : plat vedette qui change ================= */
+const featured = MENU.filter(d => ['grill','maison','burger'].includes(d.cat));
+let fi = 0;
+setInterval(() => {
+  fi = (fi + 1) % featured.length;
+  const f = $('#hero-food');
+  f.style.transition = 'transform .4s, opacity .4s'; f.style.transform = 'scale(.5) rotate(-30deg)'; f.style.opacity = 0;
+  setTimeout(() => { f.textContent = featured[fi].em; $('#hero-name').textContent = featured[fi].name; f.style.transform = ''; f.style.opacity = 1; }, 400);
+}, 3200);
+
+/* ================= NAV + APPARITION ================= */
+addEventListener('scroll', () => $('#nav').classList.toggle('scrolled', scrollY > 20));
+$('#burger').onclick = () => $('#links').classList.toggle('open');
+document.querySelectorAll('#links a').forEach(a => a.onclick = () => $('#links').classList.remove('open'));
+const io = new IntersectionObserver(es => es.forEach((e, i) => {
+  if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); io.unobserve(e.target); }
+}), {threshold:.12});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ================= CHATBOT (démo à règles, à remplacer par une IA) ================= */
+const chat = $('#chat'), msgs = $('#msgs'), input = $('#chat-text');
+let started = false;
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const list = arr => arr.map(d => `${d.em} ${d.name} (${money(d.price)})`).join('\n');
+
+function botAnswer(q){
+  const t = norm(q);
+  // Allergènes : cherche un allergène nommé dans la question
+  const ALL = ['arachide','noix','gluten','lait','oeuf','soya','sesame','moutarde','celeri','ail'];
+  const hit = ALL.find(a => t.includes(a));
+  if (hit) {
+    const key = hit === 'oeuf' ? 'œuf' : hit === 'sesame' ? 'sésame' : hit === 'celeri' ? 'céleri' : hit;
+    if (hit === 'arachide') return {text:"Aucun de nos plats ne contient d'arachides comme ingrédient. Par contre, le brownie contient des noix. Pour une allergie sévère, appelle-nous au " + INFO.phone + " : notre cuisine n'est pas certifiée sans traces."};
+    const bad = MENU.filter(d => d.allergens.includes(key));
+    const safe = MENU.filter(d => !d.allergens.includes(key) && d.cat !== 'dessert').slice(0, 5);
+    return {text:`Plats qui contiennent « ${key} » :\n${bad.length ? bad.map(d => '• ' + d.name).join('\n') : 'aucun'}\n\nQuelques plats sans ${key} :\n${list(safe)}\n\nPour une allergie sévère, appelle-nous au ${INFO.phone}.`};
+  }
+  if (/allerg/.test(t)) return {text:"Chaque plat du menu affiche ses allergènes (⚠️). Dis-moi lequel tu évites, par exemple « sans lait » ou « noix », et je te dis quoi choisir."};
+  if (/vege|vegan|viande/.test(t)) return {text:'Nos options végé :\n' + list(MENU.filter(d => d.tags.includes('v') && d.cat !== 'dessert')), add: 5};
+  if (/gluten|celiaq/.test(t)) return {text:'Sans gluten :\n' + list(MENU.filter(d => d.tags.includes('g'))), add: 1};
+  if (/epic|piquant|fort/.test(t)) return {text:'Pour ceux qui aiment ça relevé 🌶️ :\n' + list(MENU.filter(d => d.tags.includes('s'))), add: 8};
+  if (/recommand|suggest|populaire|meilleur|quoi prendre|conseil/.test(t)) return {text:'Nos clients adorent le Poulet grillé maison 🍗, et côté végé, le Curry de pois chiches 🍛. Avec des frites maison, c\'est parfait !', add: 1};
+  if (/livr|delivery|uber|domicile/.test(t)) return {text:`Oui ! On livre dans le quartier en 25 à 35 min. Frais de ${money(INFO.deliveryFee)}, gratuite dès ${INFO.freeDeliveryFrom} $. Ajoute tes plats au panier et choisis « Livraison ».`};
+  if (/emporter|takeout|ramasser/.test(t)) return {text:'Pour emporter, c\'est prêt en environ 15 minutes. Ajoute tes plats au panier et choisis « Pour emporter ».'};
+  if (/horaire|heure|ouvert|ferme|quand/.test(t)) return {text:'Lun–mar 11 h – 21 h\nMer–jeu 11 h – 22 h\nVen–sam 11 h – 23 h\nDim 12 h – 21 h'};
+  if (/adresse|ou etes|situe|metro|parking|stationnement/.test(t)) return {text:`On est au ${INFO.address}, à 4 minutes à pied du métro. Stationnement dans la rue.`};
+  if (/prix|combien|cher|budget/.test(t)) return {text:'Plats principaux entre 15,50 $ et 24,95 $, accompagnements dès 5,50 $. Le moins cher pour un repas complet : Le Jardin + frites, environ 21 $.'};
+  if (/enfant|kid|famille/.test(t)) return {text:'Les familles sont les bienvenues ! On a des chaises hautes, et on peut servir des demi-portions pour les petits.'};
+  if (/reserv|groupe|table pour/.test(t)) return {text:`Pour réserver une table ou un groupe, appelle-nous au ${INFO.phone}. Pour un traiteur, écris-nous à bonjour@comptoirduquartier.ca.`};
+  if (/paie|paye|carte|cash|comptant|interac/.test(t)) return {text:'On accepte comptant, Interac, Visa, Mastercard et le paiement sans contact.'};
+  if (/bonjour|salut|allo|hello|yo\b|bonsoir/.test(t)) return {text:'Salut ! Tu as faim ? 😄 Je peux te suggérer un plat, t\'aider avec les allergies ou t\'expliquer la livraison.'};
+  if (/merci/.test(t)) return {text:'Avec plaisir ! Bon appétit 🍽️'};
+  const found = MENU.find(d => t.includes(norm(d.name.split(' ')[0])) && d.name.split(' ')[0].length > 3);
+  if (found) return {text:`${found.em} ${found.name} : ${found.desc} ${money(found.price)}.${found.allergens.length ? ' Allergènes : ' + found.allergens.join(', ') + '.' : ''}`, add: found.id};
+  return {text:`Bonne question ! Je ne suis pas certain. Appelle-nous au ${INFO.phone}, ou essaie un des boutons ci-dessous.`};
+}
+
+function addMsg(text, who, addId){
+  const m = document.createElement('div');
+  m.className = 'msg ' + who;
+  m.style.whiteSpace = 'pre-line';
+  m.textContent = text;
+  if (addId) {
+    const d = MENU.find(x => x.id === addId);
+    const b = document.createElement('button');
+    b.className = 'mini-add'; b.textContent = `+ Ajouter ${d.name}`;
+    b.onclick = () => { addToCart(addId); b.textContent = '✓ Ajouté'; b.disabled = true; };
+    m.appendChild(document.createElement('br')); m.appendChild(b);
+  }
+  msgs.appendChild(m); msgs.scrollTop = msgs.scrollHeight;
+}
+function send(text){
+  if (!text.trim()) return;
+  addMsg(text, 'user'); input.value = '';
+  const t = document.createElement('div');
+  t.className = 'msg bot typing'; t.innerHTML = '<i></i><i></i><i></i>';
+  msgs.appendChild(t); msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => { t.remove(); const a = botAnswer(text); addMsg(a.text, 'bot', a.add); }, 650 + Math.random() * 500);
+}
+$('#chat-toggle').onclick = () => {
+  chat.classList.toggle('open');
+  if (!started) { started = true; setTimeout(() => addMsg("Salut 👋 Je suis l'assistant du Comptoir. Je peux te suggérer un plat, t'aider avec les allergies ou t'expliquer la livraison.", 'bot'), 300); }
+  if (chat.classList.contains('open')) setTimeout(() => input.focus(), 350);
+};
+$('#chat-close').onclick = () => chat.classList.remove('open');
+$('#chat-send').onclick = () => send(input.value);
+input.addEventListener('keydown', e => { if (e.key === 'Enter') send(input.value); });
+$('#quick').onclick = e => { const b = e.target.closest('button'); if (b) send(b.dataset.q); };
+
+renderMenu(); updateCart();
+</script>
+</body>
+</html>
